@@ -1,0 +1,26 @@
+grpc:
+  server:
+    port: 9001
+    gateway:
+      enabled: true
+      header:
+        removes:
+          - prefix: xx
+            suffix: xx
+        ins:
+          - prefix: xx
+            suffix: xx
+            contains: xx
+        outs:
+          - prefix: xx
+            suffix: xx
+            contains: xx
+      json:
+        multiline: false
+        indent: ""
+        partial: false
+        unpopulated: true
+        discard: true
+        options:
+          - enum_as_numbers
+          - name_as_proto
