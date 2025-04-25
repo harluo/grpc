@@ -10,8 +10,8 @@ import (
 	"github.com/goexl/gox"
 	"github.com/goexl/log"
 	"github.com/harluo/grpc/internal/config"
-	"github.com/harluo/grpc/internal/core/internal"
 	"github.com/harluo/grpc/internal/internal/constant"
+	"github.com/harluo/grpc/internal/internal/kernel"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/reflection"
@@ -23,11 +23,14 @@ type Server struct {
 	http *http.Server
 	mux  *http.ServeMux
 
-	wait       *sync.WaitGroup
-	config     *internal.Config
-	rpcStarted bool
-	logger     log.Logger
-	_          gox.Pointerized
+	server  *kernel.Server
+	gateway *kernel.Gateway
+
+	wait    *sync.WaitGroup
+	started bool
+	logger  log.Logger
+
+	_ gox.Pointerized
 }
 
 func newServer(config *config.Grpc, logger log.Logger) (server *Server, mux *http.ServeMux, err error) {
@@ -56,14 +59,13 @@ func newServer(config *config.Grpc, logger log.Logger) (server *Server, mux *htt
 	mux = http.NewServeMux()
 	server.rpc = grpc.NewServer(opts...)
 	server.mux = mux
-	server.config = internal.NewConfig(config.Server, config.Gateway)
 	server.logger = logger
 
 	return
 }
 
 func (s *Server) Serve(register Register) (err error) {
-	if *s.config.Server.Reflection { // 反射，在gRPC接口调试时，可以反射出方法和参数
+	if *s.server.Reflection { // 反射，在gRPC接口调试时，可以反射出方法和参数
 		reflection.Register(s.rpc)
 	}
 
@@ -89,15 +91,15 @@ func (s *Server) Stop(ctx context.Context) (err error) {
 }
 
 func (s *Server) diffPort() bool {
-	return s.config.Gateway.Port != s.config.Server.Port
+	return s.gateway.Port != s.server.Port
 }
 
 func (s *Server) listeners() (rpc net.Listener, gateway net.Listener, err error) {
-	if listener, re := net.Listen(constant.Tcp, s.config.Server.Addr()); nil != re { // gRPC端口必须监听
+	if listener, re := net.Listen(constant.Tcp, s.server.Addr()); nil != re { // gRPC端口必须监听
 		err = re
 	} else if s.gatewayEnabled() && s.diffPort() { // 如果网关开启且端口不一样
 		rpc = listener
-		gateway, err = net.Listen(constant.Tcp, s.config.Gateway.Addr())
+		gateway, err = net.Listen(constant.Tcp, s.gateway.Addr())
 	} else { // 其它情况，监听端口都是一样的
 		rpc = listener
 		gateway = listener
@@ -107,5 +109,5 @@ func (s *Server) listeners() (rpc net.Listener, gateway net.Listener, err error)
 }
 
 func (s *Server) gatewayEnabled() bool {
-	return nil != s.config.Gateway && s.config.Gateway.Enable()
+	return nil != s.gateway && s.gateway.Enable()
 }

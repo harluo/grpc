@@ -1,4 +1,4 @@
-package config
+package kernel
 
 import (
 	"strings"
@@ -6,9 +6,9 @@ import (
 
 type Remove struct {
 	// 前缀
-	Prefix string `json:"prefix" yaml:"prefix" xml:"prefix" toml:"suffix"`
+	Prefix string `json:"prefix,omitempty"`
 	// 后缀
-	Suffix string `json:"suffix" yaml:"suffix" xml:"suffix" toml:"suffix"`
+	Suffix string `json:"suffix,omitempty"`
 }
 
 func (r *Remove) Test(key string) (new string, match bool) {

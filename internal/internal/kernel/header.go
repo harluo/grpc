@@ -1,4 +1,4 @@
-package config
+package kernel
 
 import (
 	"github.com/goexl/gox"
@@ -6,17 +6,17 @@ import (
 
 type Header struct {
 	// 是否启用默认行为
-	Default *bool `default:"true" json:"default" yaml:"default" xml:"default" toml:"default"`
+	Default *bool `default:"true" json:"default,omitempty"`
 	// 删除列表
-	Removes []Remove `json:"removes" yaml:"removes" xml:"removes" toml:"removes"`
+	Removes []Remove `json:"removes,omitempty"`
 	// 输入头匹配列表
 	// nolint: lll
-	Ins []Matcher `json:"ins" yaml:"ins" xml:"ins" toml:"ins"`
+	Ins []Matcher `json:"ins,omitempty"`
 	// 输出头匹配列表
-	Outs []Matcher `json:"outs" yaml:"outs" xml:"outs" toml:"outs"`
+	Outs []Matcher `json:"outs,omitempty"`
 	// 保留
 	// 符合要求的请求头，会在返回时原样返回
-	Reserves []Matcher `json:"reserves" yaml:"reserves" xml:"reserves" toml:"reserves"`
+	Reserves []Matcher `json:"reserves,omitempty"`
 
 	DefaultRemoves  []Remove  `default:"[{'prefix': 'http-'}]"`
 	DefaultIns      []Matcher `default:"[{'prefix': 'x-forwarded'}]"`

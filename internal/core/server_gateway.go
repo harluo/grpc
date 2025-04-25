@@ -26,7 +26,7 @@ func (s *Server) setupGateway(register Register, listener net.Listener) (err err
 		return
 	}
 
-	gatewayOpts := s.config.Gateway.Options()
+	gatewayOpts := s.gateway.Options()
 	gatewayOpts = append(gatewayOpts, runtime.WithForwardResponseOption(s.response))
 	gatewayOpts = append(gatewayOpts, runtime.WithIncomingHeaderMatcher(s.in))
 	gatewayOpts = append(gatewayOpts, runtime.WithOutgoingHeaderMatcher(s.out))
@@ -35,27 +35,27 @@ func (s *Server) setupGateway(register Register, listener net.Listener) (err err
 	gatewayOpts = append(gatewayOpts, runtime.WithErrorHandler(s.error))
 	// 使用特定的解码器来处理原始数据
 	gatewayOpts = append(gatewayOpts, runtime.WithMarshalerOption(constant.RawHeaderValue, decoder.NewRaw()))
-	if nil != s.config.Gateway.Unescape {
-		gatewayOpts = append(gatewayOpts, runtime.WithUnescapingMode(s.config.Gateway.Unescape.Mode))
+	if nil != s.gateway.Unescape {
+		gatewayOpts = append(gatewayOpts, runtime.WithUnescapingMode(s.gateway.Unescape.Mode))
 	}
 
 	gw := runtime.NewServeMux(gatewayOpts...)
 	grpcOpts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
 	ctx, handlers := register.Gateway(gw, &grpcOpts)
-	if s.rpcStarted && !s.diffPort() {
+	if s.started && !s.diffPort() {
 		grpcOpts = append(grpcOpts, grpc.WithBlock())
 	}
 	if nil == ctx {
 		ctx = context.Background()
 	}
-	if connection, dce := grpc.DialContext(ctx, s.config.Server.Addr(), grpcOpts...); nil != dce {
+	if connection, dce := grpc.DialContext(ctx, s.server.Addr(), grpcOpts...); nil != dce {
 		err = dce
 	} else if ge := s.registerGateway(ctx, gw, connection, handlers); nil != ge {
 		err = ge
-	} else if "" == s.config.Gateway.Path {
+	} else if "" == s.gateway.Path {
 		s.mux.Handle(constant.Slash, gw)
 	} else {
-		path := s.config.Gateway.Path
+		path := s.gateway.Path
 		s.mux.Handle(gox.StringBuilder(path, constant.Slash).String(), http.StripPrefix(path, gw))
 	}
 	if nil == err {
@@ -67,14 +67,14 @@ func (s *Server) setupGateway(register Register, listener net.Listener) (err err
 
 func (s *Server) serveGateway(listener net.Listener) (err error) {
 	s.http = new(http.Server)
-	s.http.Addr = s.config.Gateway.Addr()
+	s.http.Addr = s.gateway.Addr()
 	s.http.Handler = s.handler(s.rpc, s.mux)
-	s.http.ReadTimeout = s.config.Gateway.Timeout.Read
-	s.http.ReadHeaderTimeout = s.config.Gateway.Timeout.Header
+	s.http.ReadTimeout = s.gateway.Timeout.Read
+	s.http.ReadHeaderTimeout = s.gateway.Timeout.Header
 
 	fields := gox.Fields[any]{
-		field.New("name", s.config.Gateway.Name),
-		field.New("addr", s.config.Gateway.Addr()),
+		field.New("name", s.gateway.Name),
+		field.New("addr", s.gateway.Addr()),
 	}
 	s.logger.Info("启动服务成功", fields...)
 	err = s.http.Serve(listener)
@@ -164,7 +164,7 @@ func (s *Server) resetHeader(header metadata.MD, writer http.ResponseWriter) {
 
 		newKey := strings.ToLower(key)
 		removal := false
-		newKey, removal = s.config.Gateway.Header.TestRemove(newKey)
+		newKey, removal = s.gateway.Header.TestRemove(newKey)
 
 		if removal {
 			writer.Header().Set(newKey, strings.Join(value, constant.Space))
@@ -175,7 +175,7 @@ func (s *Server) resetHeader(header metadata.MD, writer http.ResponseWriter) {
 }
 
 func (s *Server) in(key string) (new string, match bool) {
-	if newKey, test := s.config.Gateway.Header.TestIns(key); test {
+	if newKey, test := s.gateway.Header.TestIns(key); test {
 		new = newKey
 		match = true
 	} else {
@@ -186,7 +186,7 @@ func (s *Server) in(key string) (new string, match bool) {
 }
 
 func (s *Server) out(key string) (new string, match bool) {
-	if newKey, test := s.config.Gateway.Header.TestOuts(key); test {
+	if newKey, test := s.gateway.Header.TestOuts(key); test {
 		new = newKey
 		match = true
 	} else {

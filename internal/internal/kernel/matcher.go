@@ -1,4 +1,4 @@
-package config
+package kernel
 
 import (
 	"strings"
@@ -6,13 +6,13 @@ import (
 
 type Matcher struct {
 	// 等于
-	Equal string `json:"equal" yaml:"equal" xml:"equal" toml:"equal"`
+	Equal string `json:"equal,omitempty"`
 	// 前缀
-	Prefix string `json:"prefix" yaml:"prefix" xml:"prefix" toml:"suffix"`
+	Prefix string `json:"prefix,omitempty"`
 	// 后缀
-	Suffix string `json:"suffix" yaml:"suffix" xml:"suffix" toml:"suffix"`
+	Suffix string `json:"suffix,omitempty"`
 	// 包含
-	Contains string `json:"contains" yaml:"contains" xml:"contains" toml:"contains"`
+	Contains string `json:"contains,omitempty"`
 }
 
 func (m *Matcher) Test(key string) (new string, match bool) {

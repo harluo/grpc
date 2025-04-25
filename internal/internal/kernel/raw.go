@@ -1,4 +1,4 @@
-package config
+package kernel
 
 import (
 	"strings"
@@ -6,11 +6,11 @@ import (
 
 type Raw struct {
 	// 前缀
-	Prefix string `json:"prefix" yaml:"prefix" xml:"prefix" toml:"prefix"`
+	Prefix string `json:"prefix,omitempty"`
 	// 后缀
-	Suffix string `json:"suffix" yaml:"suffix" xml:"suffix" toml:"suffix"`
+	Suffix string `json:"suffix,omitempty"`
 	// 包含
-	Contains string `default:"Raw" json:"contains" yaml:"contains" xml:"contains" toml:"contains"`
+	Contains string `default:"Raw" json:"contains,omitempty"`
 }
 
 func (r *Raw) Check(check string) (checked bool) {

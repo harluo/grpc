@@ -1,14 +1,14 @@
-package config
+package kernel
 
 type Cors struct {
 	// 是否开启
-	Enabled *bool `json:"enabled" yaml:"enabled" xml:"enabled" toml:"enabled"`
+	Enabled *bool `json:"enabled,omitempty"`
 	// 允许跨域访问的源
-	Allows []string `default:"['*']" json:"allows" yaml:"allows" xml:"allows" toml:"allows"`
+	Allows []string `default:"['*']" json:"allows,omitempty"`
 	// 允许的请求方法
 	// nolint:lll
-	Methods []string `default:"['GET', 'POST', 'PUT', 'DELETE']" json:"methods" yaml:"methods" xml:"methods" toml:"methods"`
+	Methods []string `default:"['GET', 'POST', 'PUT', 'DELETE']" json:"methods,omitempty"`
 	// 允许的请求头
 	// nolint:lll
-	Headers []string `default:"['Content-Type', 'Authorization']" json:"headers" yaml:"headers" xml:"headers" toml:"headers"`
+	Headers []string `default:"['Content-Type', 'Authorization']" json:"headers,omitempty"`
 }

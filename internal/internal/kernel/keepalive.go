@@ -1,4 +1,4 @@
-package config
+package kernel
 
 import (
 	"time"
@@ -6,11 +6,11 @@ import (
 
 type Keepalive struct {
 	// 保持时长
-	Time time.Duration `default:"10s" json:"time" yaml:"time" xml:"time" toml:"time"`
+	Time time.Duration `default:"10s" json:"time,omitempty"`
 	// 超时
-	Timeout time.Duration `default:"3s" json:"timeout" yaml:"timeout" xml:"timeout" toml:"timeout"`
+	Timeout time.Duration `default:"3s" json:"timeout,omitempty"`
 	// 空闲时长
-	Idle time.Duration `default:"3s" json:"idle" yaml:"idle" xml:"idle" toml:"idle"`
+	Idle time.Duration `default:"3s" json:"idle,omitempty"`
 	// 策略
-	Policy KeepalivePolicy `json:"policy" yaml:"policy" xml:"policy" toml:"policy"`
+	Policy KeepalivePolicy `json:"policy,omitempty"`
 }

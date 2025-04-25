@@ -10,12 +10,12 @@ import (
 func (s *Server) setupGrpc(register Register, listener net.Listener) (err error) {
 	register.Grpc(s.rpc)
 	fields := gox.Fields[any]{
-		field.New("name", s.config.Server.Name),
-		field.New("addr", s.config.Server.Addr()),
+		field.New("name", s.server.Name),
+		field.New("addr", s.server.Addr()),
 	}
 	s.logger.Info("启动服务成功", fields...)
 	if !s.gatewayEnabled() || (s.gatewayEnabled() && s.diffPort()) {
-		s.rpcStarted = true
+		s.started = true
 		s.wait.Add(1)
 		go s.serveRpc(listener, &fields)
 	}

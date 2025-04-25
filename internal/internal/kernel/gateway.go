@@ -1,4 +1,4 @@
-package config
+package kernel
 
 import (
 	"fmt"
@@ -11,27 +11,27 @@ import (
 
 type Gateway struct {
 	// 是否开启
-	Enabled *bool `default:"true" json:"enabled" yaml:"enabled" xml:"enabled" toml:"enabled"`
+	Enabled *bool `default:"true" json:"enabled,omitempty"`
 	// 名字
-	Name string `default:"网关" json:"name" yaml:"name" xml:"name" toml:"name"`
+	Name string `default:"网关" json:"name,omitempty"`
 	// 绑定监听主机
-	Host string `json:"host" yaml:"host" xml:"host" toml:"host"`
+	Host string `json:"host,omitempty"`
 	// 绑定监听端口
-	Port int `default:"9001" json:"port" yaml:"port" xml:"port" toml:"port" validate:"required,min=1,max=65535"`
+	Port int `default:"9001" json:"port,omitempty" validate:"required,min=1,max=65535"`
 	// 路径
-	Path string `json:"path" yaml:"path" xml:"path" toml:"path" validate:"omitempty,startswith=/,endsnotwith=/"`
+	Path string `json:"path,omitempty" validate:"omitempty,startswith=/,endsnotwith=/"`
 	// 跨域
-	Cors *Cors `json:"cors" yaml:"cors" xml:"cors" toml:"cors"`
+	Cors *Cors `json:"cors,omitempty"`
 	// 超时
-	Timeout Timeout `json:"timeout" yaml:"timeout" xml:"timeout" toml:"timeout"`
+	Timeout Timeout `json:"timeout,omitempty"`
 	// 序列化
-	Json Json `json:"json" yaml:"json" xml:"json" toml:"json"`
+	Json Json `json:"json,omitempty"`
 	// 头
-	Header Header `json:"header" yaml:"header" xml:"header" toml:"header"`
+	Header Header `json:"header,omitempty"`
 	// 消息体
-	Body Body `json:"body" yaml:"body" xml:"body" toml:"body"`
+	Body Body `json:"body,omitempty"`
 	// 模式
-	Unescape *Unescape `json:"unescape" yaml:"unescape" xml:"unescape" toml:"unescape"`
+	Unescape *Unescape `json:"unescape,omitempty"`
 }
 
 func (g *Gateway) Options() (options []runtime.ServeMuxOption) {

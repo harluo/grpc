@@ -1,4 +1,4 @@
-package config
+package kernel
 
 import (
 	"github.com/goexl/gox"
@@ -7,8 +7,8 @@ import (
 type Msg struct {
 	// 发送大小
 	// 4GB
-	Send gox.Bytes `default:"4GB" json:"send" yaml:"send" xml:"send" toml:"send"`
+	Send gox.Bytes `default:"4GB" json:"send,omitempty"`
 	// 接收大小
 	// 4GB
-	Receive gox.Bytes `default:"4GB" json:"receive" yaml:"receive" xml:"receive" toml:"receive"`
+	Receive gox.Bytes `default:"4GB" json:"receive,omitempty"`
 }

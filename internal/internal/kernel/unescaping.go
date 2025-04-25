@@ -1,4 +1,4 @@
-package config
+package kernel
 
 import (
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
@@ -6,5 +6,5 @@ import (
 
 type Unescape struct {
 	// 模式
-	Mode runtime.UnescapingMode `json:"mode" yaml:"mode" xml:"mode" toml:"mode" validate:"max=3"`
+	Mode runtime.UnescapingMode `json:"mode,omitempty" validate:"max=3"`
 }

@@ -17,7 +17,7 @@ func (s *Server) handler(grpc *grpc.Server, gateway http.Handler) (handler http.
 	// 增加原始数据解析
 	handler = s.handle(gateway)
 	// 处理跨域
-	handler = gox.Ift(s.config.Gateway.CorsEnabled(), s.cors(handler), handler)
+	handler = gox.Ift(s.gateway.CorsEnabled(), s.cors(handler), handler)
 	// 如果端口配置为一样，需要合并处理
 	handler = gox.Ift(s.diffPort(), handler, s.combine(grpc, handler))
 
@@ -38,11 +38,11 @@ func (s *Server) combine(grpc *grpc.Server, gateway http.Handler) http.Handler {
 func (s *Server) cors(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(rsp http.ResponseWriter, req *http.Request) {
 		// 设置允许跨域访问的源
-		rsp.Header().Set(constant.HeaderAllowOrigin, strings.Join(s.config.Gateway.Cors.Allows, constant.Comma))
+		rsp.Header().Set(constant.HeaderAllowOrigin, strings.Join(s.gateway.Cors.Allows, constant.Comma))
 		// 设置允许的请求方法
-		rsp.Header().Set(constant.HeaderAllowMethods, strings.Join(s.config.Gateway.Cors.Methods, constant.Comma))
+		rsp.Header().Set(constant.HeaderAllowMethods, strings.Join(s.gateway.Cors.Methods, constant.Comma))
 		// 设置允许的请求头
-		rsp.Header().Set(constant.HeaderAllowHeaders, strings.Join(s.config.Gateway.Cors.Headers, constant.Comma))
+		rsp.Header().Set(constant.HeaderAllowHeaders, strings.Join(s.gateway.Cors.Headers, constant.Comma))
 
 		// 如果是预检请求，直接返回
 		if req.Method == constant.MethodOptions {
@@ -57,7 +57,7 @@ func (s *Server) cors(next http.Handler) http.Handler {
 func (s *Server) handle(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(rsp http.ResponseWriter, req *http.Request) {
 		// 处理原始数据
-		if nil != req && nil != s.config.Gateway && s.config.Gateway.Body.Check(req.URL.Path) {
+		if nil != req && nil != s.gateway && s.gateway.Body.Check(req.URL.Path) {
 			req.Header.Set(constant.HeaderContentType, constant.RawHeaderValue)
 		}
 
@@ -76,7 +76,7 @@ func (s *Server) reserves(rsp http.ResponseWriter, req *http.Request) {
 }
 
 func (s *Server) reserve(header *http.Header, key string, values []string) {
-	if _, test := s.config.Gateway.Header.TestReserves(key); !test {
+	if _, test := s.gateway.Header.TestReserves(key); !test {
 		return
 	}
 
