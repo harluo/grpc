@@ -1,7 +1,7 @@
 package config
 
 import (
-	"github.com/harluo/boot"
+	"github.com/harluo/config"
 	"github.com/harluo/grpc/internal/internal/kernel"
 )
 
@@ -16,9 +16,9 @@ type Grpc struct {
 	Options kernel.Options `json:"options,omitempty"`
 }
 
-func newConfig(config *boot.Config) (grpc *Grpc, err error) {
+func newConfig(config *config.Getter) (grpc *Grpc, err error) {
 	grpc = new(Grpc)
-	err = config.Build().Get(&struct {
+	err = config.Get(&struct {
 		Grpc *Grpc `json:"grpc,omitempty" validate:"required"`
 	}{
 		Grpc: grpc,
