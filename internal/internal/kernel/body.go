@@ -1,4 +1,4 @@
-package internal
+package config
 
 type Body struct {
 	// 原始请求

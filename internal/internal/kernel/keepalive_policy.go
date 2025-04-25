@@ -1,4 +1,4 @@
-package internal
+package config
 
 type KeepalivePolicy struct {
 	// 无流许可

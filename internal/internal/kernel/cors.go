@@ -1,4 +1,4 @@
-package internal
+package config
 
 type Cors struct {
 	// 是否开启

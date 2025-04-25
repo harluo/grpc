@@ -1,4 +1,4 @@
-package internal
+package config
 
 type Client struct {
 	// 名称

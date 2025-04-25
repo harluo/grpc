@@ -1,4 +1,4 @@
-package internal
+package config
 
 type Options struct {
 	// 大小配置

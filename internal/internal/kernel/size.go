@@ -1,4 +1,4 @@
-package internal
+package config
 
 type Size struct {
 	// 消息
