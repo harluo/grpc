@@ -59,6 +59,10 @@ func newServer(config *config.Grpc, logger log.Logger) (server *Server, mux *htt
 	mux = http.NewServeMux()
 	server.rpc = grpc.NewServer(opts...)
 	server.mux = mux
+
+	server.server = config.Server
+	server.gateway = config.Gateway
+	server.wait = new(sync.WaitGroup)
 	server.logger = logger
 
 	return
