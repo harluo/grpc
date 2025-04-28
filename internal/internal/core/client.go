@@ -1,4 +1,4 @@
-package kernel
+package core
 
 type Client struct {
 	// 名称

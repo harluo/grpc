@@ -2,18 +2,18 @@ package config
 
 import (
 	"github.com/harluo/config"
-	"github.com/harluo/grpc/internal/internal/kernel"
+	"github.com/harluo/grpc/internal/internal/core"
 )
 
 type Grpc struct {
 	// 服务器端配置
-	Server *kernel.Server `json:"server,omitempty"`
+	Server *core.Server `json:"server,omitempty"`
 	// 网关配置
-	Gateway *kernel.Gateway `json:"gateway,omitempty"`
+	Gateway *core.Gateway `json:"gateway,omitempty"`
 	// 客户端配置
-	Clients []kernel.Client `json:"clients,omitempty"`
+	Clients []core.Client `json:"clients,omitempty"`
 	// gRPC配置
-	Options kernel.Options `json:"options,omitempty"`
+	Options core.Options `json:"options,omitempty"`
 }
 
 func newConfig(config config.Getter) (grpc *Grpc, err error) {

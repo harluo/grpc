@@ -1,4 +1,4 @@
-package kernel
+package core
 
 type KeepalivePolicy struct {
 	// 无流许可

@@ -1,4 +1,4 @@
-package kernel
+package core
 
 type Size struct {
 	// 消息

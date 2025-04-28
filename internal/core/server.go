@@ -10,8 +10,10 @@ import (
 	"github.com/goexl/gox"
 	"github.com/goexl/log"
 	"github.com/harluo/grpc/internal/config"
+	"github.com/harluo/grpc/internal/internal/checker"
 	"github.com/harluo/grpc/internal/internal/constant"
-	"github.com/harluo/grpc/internal/internal/kernel"
+	"github.com/harluo/grpc/internal/internal/core"
+	"github.com/harluo/grpc/internal/kernel"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/reflection"
@@ -23,8 +25,8 @@ type Server struct {
 	http *http.Server
 	mux  *http.ServeMux
 
-	server  *kernel.Server
-	gateway *kernel.Gateway
+	server  *core.Server
+	gateway *core.Gateway
 
 	wait    *sync.WaitGroup
 	started bool
@@ -68,7 +70,7 @@ func newServer(config *config.Grpc, logger log.Logger) (server *Server, mux *htt
 	return
 }
 
-func (s *Server) Serve(register Register) (err error) {
+func (s *Server) Serve(ctx context.Context, register kernel.Register) (err error) {
 	if *s.server.Reflection { // 反射，在gRPC接口调试时，可以反射出方法和参数
 		reflection.Register(s.rpc)
 	}
@@ -77,8 +79,8 @@ func (s *Server) Serve(register Register) (err error) {
 		err = le
 	} else if gre := s.setupGrpc(register, rpc); nil != gre {
 		err = gre
-	} else if gwe := s.setupGateway(register, gateway); nil != gwe {
-		err = gwe
+	} else if converted, ok := register.(checker.Gateway); ok {
+		err = s.setupGateway(ctx, converted, gateway)
 	}
 	s.wait.Wait()
 

@@ -1,4 +1,4 @@
-package kernel
+package core
 
 type Json struct {
 	// 是否允许多行

@@ -1,4 +1,4 @@
-package kernel
+package core
 
 import (
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"

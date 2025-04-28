@@ -5,10 +5,13 @@ import (
 
 	"github.com/goexl/gox"
 	"github.com/goexl/gox/field"
+	"github.com/harluo/grpc/internal/kernel"
 )
 
-func (s *Server) setupGrpc(register Register, listener net.Listener) (err error) {
-	register.Grpc(s.rpc)
+func (s *Server) setupGrpc(register kernel.Register, listener net.Listener) (err error) {
+	for _, stub := range register.Stubs() {
+		stub.Register(s.rpc)
+	}
 	fields := gox.Fields[any]{
 		field.New("name", s.server.Name),
 		field.New("addr", s.server.Addr()),

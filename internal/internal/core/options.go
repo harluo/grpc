@@ -1,4 +1,4 @@
-package kernel
+package core
 
 type Options struct {
 	// 大小配置

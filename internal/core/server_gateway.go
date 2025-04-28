@@ -12,7 +12,9 @@ import (
 	"github.com/goexl/gox/field"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/harluo/grpc/internal/decoder"
+	"github.com/harluo/grpc/internal/internal/checker"
 	"github.com/harluo/grpc/internal/internal/constant"
+	"github.com/harluo/grpc/internal/kernel"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
@@ -21,7 +23,7 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-func (s *Server) setupGateway(register Register, listener net.Listener) (err error) {
+func (s *Server) setupGateway(ctx context.Context, register checker.Gateway, listener net.Listener) (err error) {
 	if !s.gatewayEnabled() {
 		return
 	}
@@ -41,16 +43,13 @@ func (s *Server) setupGateway(register Register, listener net.Listener) (err err
 
 	gw := runtime.NewServeMux(gatewayOpts...)
 	grpcOpts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
-	ctx, handlers := register.Gateway(gw, &grpcOpts)
 	if s.started && !s.diffPort() {
 		grpcOpts = append(grpcOpts, grpc.WithBlock())
 	}
-	if nil == ctx {
-		ctx = context.Background()
-	}
+
 	if connection, dce := grpc.DialContext(ctx, s.server.Addr(), grpcOpts...); nil != dce {
 		err = dce
-	} else if ge := s.registerGateway(ctx, gw, connection, handlers); nil != ge {
+	} else if ge := s.registerGateway(ctx, gw, connection, register.Handlers()); nil != ge {
 		err = ge
 	} else if "" == s.gateway.Path {
 		s.mux.Handle(constant.Slash, gw)
@@ -85,7 +84,7 @@ func (s *Server) serveGateway(listener net.Listener) (err error) {
 func (s *Server) registerGateway(
 	ctx context.Context,
 	mux *runtime.ServeMux, connection *grpc.ClientConn,
-	handlers []Handler,
+	handlers []kernel.Handler,
 ) (err error) {
 	for _, handler := range handlers {
 		if he := handler(ctx, mux, connection); nil != he {

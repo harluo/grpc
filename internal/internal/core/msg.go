@@ -1,4 +1,4 @@
-package kernel
+package core
 
 import (
 	"github.com/goexl/gox"

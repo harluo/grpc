@@ -1,4 +1,4 @@
-package kernel
+package core
 
 type Cors struct {
 	// 是否开启
