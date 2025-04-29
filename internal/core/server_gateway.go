@@ -14,7 +14,7 @@ import (
 	"github.com/harluo/grpc/internal/decoder"
 	"github.com/harluo/grpc/internal/internal/checker"
 	"github.com/harluo/grpc/internal/internal/constant"
-	"github.com/harluo/grpc/internal/test"
+	"github.com/harluo/grpc/internal/kernel"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
@@ -83,11 +83,11 @@ func (s *Server) serveGateway(listener net.Listener) (err error) {
 
 func (s *Server) registerGateway(
 	ctx context.Context,
-	mux *runtime.ServeMux, connection *grpc.ClientConn,
-	handlers []test.Handler,
+	mux *runtime.ServeMux, conn *grpc.ClientConn,
+	handlers []kernel.Handler,
 ) (err error) {
 	for _, handler := range handlers {
-		if he := handler(ctx, mux, connection); nil != he {
+		if he := handler.Handle(ctx, mux, conn, s.mux); nil != he {
 			err = he
 			s.logger.Warn("注册网关出错", field.New("func", handler), field.Error(he))
 		}
