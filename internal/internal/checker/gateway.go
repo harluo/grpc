@@ -1,9 +1,9 @@
 package checker
 
 import (
-	"github.com/harluo/grpc/internal/kernel"
+	"github.com/harluo/grpc/internal/test"
 )
 
 type Gateway interface {
-	Handlers() []kernel.Handler
+	Handlers() []test.Handler
 }

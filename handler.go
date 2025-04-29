@@ -1,8 +1,8 @@
 package grpc
 
 import (
-	"github.com/harluo/grpc/internal/kernel"
+	"github.com/harluo/grpc/internal/test"
 )
 
 // Handler 注册方法
-type Handler = kernel.Handler
+type Handler = test.Handler
