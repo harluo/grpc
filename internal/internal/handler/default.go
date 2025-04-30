@@ -6,6 +6,7 @@ import (
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/harluo/grpc/internal/internal/constant"
+	"github.com/harluo/grpc/internal/internal/kernel"
 	"github.com/harluo/grpc/internal/internal/param"
 	"google.golang.org/grpc"
 )
@@ -27,7 +28,7 @@ func (d *Default) Handle(
 ) (err error) {
 	switch d.params.Type {
 	case constant.HandlerTypeGrpc:
-		err = d.params.Data.(func(context.Context, *runtime.ServeMux, *grpc.ClientConn) error)(ctx, gateway, conn)
+		err = d.params.Data.(kernel.Handler)(ctx, gateway, conn)
 	case constant.HandlerTypeHttp:
 		mux.Handle(d.params.Pattern, d.params.Data.(http.Handler))
 	default:

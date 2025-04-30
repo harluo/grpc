@@ -19,21 +19,28 @@ func NewHandler() *Handler {
 	}
 }
 
-func (h *Handler) Http(pattern string, handler *http.Handler) (self *Handler) {
-	h.params.Type = constant.HandlerTypeHttp
-	h.params.Pattern = pattern
-	h.params.Data = handler
-
-	return
+func (h *Handler) Http(pattern string, handler http.Handler) *Handler {
+	return h.set(func() {
+		h.params.Type = constant.HandlerTypeHttp
+		h.params.Pattern = pattern
+		h.params.Data = handler
+	})
 }
 
-func (h *Handler) Grpc(handler kernel.Handler) (self *Handler) {
-	h.params.Type = constant.HandlerTypeGrpc
-	h.params.Data = handler
-
-	return
+func (h *Handler) Grpc(handler kernel.Handler) *Handler {
+	return h.set(func() {
+		h.params.Type = constant.HandlerTypeGrpc
+		h.params.Data = handler
+	})
 }
 
 func (h *Handler) Build() *handler.Default {
 	return handler.NewDefault(h.params)
+}
+
+func (h *Handler) set(callback func()) (handler *Handler) {
+	callback()
+	handler = h
+
+	return
 }
