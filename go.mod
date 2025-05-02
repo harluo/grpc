@@ -34,7 +34,7 @@ require (
 	github.com/goexl/structer v0.1.9 // indirect
 	github.com/goexl/xiren v0.0.8 // indirect
 	github.com/google/uuid v1.6.0 // indirect
-	github.com/harluo/boot v1.7.1 // indirect
+	github.com/harluo/boot v1.7.2 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/mattn/go-runewidth v0.0.16 // indirect
