@@ -13,7 +13,7 @@ require (
 	github.com/goexl/exception v0.0.3
 	github.com/goexl/log v0.0.9
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.26.3
-	github.com/harluo/config v0.0.4
+	github.com/harluo/config v0.0.5
 	github.com/harluo/di v0.0.5
 	github.com/stretchr/testify v1.10.0
 )
