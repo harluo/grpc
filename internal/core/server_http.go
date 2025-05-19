@@ -62,28 +62,9 @@ func (s *Server) handle(next http.Handler) http.Handler {
 			req.Header.Set(constant.HeaderContentType, constant.RawHeaderValue)
 		}
 
-		// 处理保留头
-		s.reserves(rsp, req)
 		// 调用实际的处理器函数
 		next.ServeHTTP(rsp, req)
 	})
-}
-
-func (s *Server) reserves(rsp http.ResponseWriter, req *http.Request) {
-	header := rsp.Header()
-	for key, value := range req.Header {
-		s.reserve(&header, key, value)
-	}
-}
-
-func (s *Server) reserve(header *http.Header, key string, values []string) {
-	if _, test := s.gateway.Header.TestReserves(key); !test {
-		return
-	}
-
-	for _, value := range values {
-		header.Set(key, value)
-	}
 }
 
 func (s *Server) ip(req *http.Request) (ip string) {

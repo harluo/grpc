@@ -30,7 +30,6 @@ func (s *Server) serveRpc(listener net.Listener, fields *gox.Fields[any]) {
 	defer s.wait.Done()
 
 	if err := s.rpc.Serve(listener); nil != err {
-		errors := fields.Add(field.Error(err))
-		s.logger.Error("启动服务出错", errors[0], errors[1:]...)
+		s.logger.Error("启动服务出错", field.Error(err), *fields...)
 	}
 }

@@ -10,7 +10,6 @@ type Header struct {
 	// 删除列表
 	Removes []Remove `json:"removes,omitempty"`
 	// 输入头匹配列表
-	// nolint: lll
 	Ins []Matcher `json:"ins,omitempty"`
 	// 输出头匹配列表
 	Outs []Matcher `json:"outs,omitempty"`
@@ -50,7 +49,7 @@ func (h *Header) TestOuts(key string) (new string, match bool) {
 	return h.match(h.Outs, key)
 }
 
-func (h *Header) TestReserves(key string) (new string, match bool) {
+func (h *Header) TestReserves(key string) (string, bool) {
 	return h.match(gox.Ifx(*h.Default, func() []Matcher {
 		return append(h.DefaultReserves, h.Reserves...)
 	}, func() []Matcher {

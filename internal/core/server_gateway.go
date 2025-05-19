@@ -33,7 +33,6 @@ func (s *Server) setupGateway(ctx context.Context, register checker.Gateway, lis
 	gatewayOpts = append(gatewayOpts, runtime.WithIncomingHeaderMatcher(s.in))
 	gatewayOpts = append(gatewayOpts, runtime.WithOutgoingHeaderMatcher(s.out))
 	gatewayOpts = append(gatewayOpts, runtime.WithMetadata(s.metadata))
-	gatewayOpts = append(gatewayOpts, runtime.WithMetadata(s.metadata))
 	gatewayOpts = append(gatewayOpts, runtime.WithErrorHandler(s.error))
 	// 使用特定的解码器来处理原始数据
 	gatewayOpts = append(gatewayOpts, runtime.WithMarshalerOption(constant.RawHeaderValue, decoder.NewRaw()))
@@ -41,21 +40,19 @@ func (s *Server) setupGateway(ctx context.Context, register checker.Gateway, lis
 		gatewayOpts = append(gatewayOpts, runtime.WithUnescapingMode(s.gateway.Unescape.Mode))
 	}
 
-	gw := runtime.NewServeMux(gatewayOpts...)
-	grpcOpts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
-	if s.started && !s.diffPort() {
-		grpcOpts = append(grpcOpts, grpc.WithBlock())
+	grpcOpts := []grpc.DialOption{
+		grpc.WithTransportCredentials(insecure.NewCredentials()), // 不处理安全
 	}
-
-	if connection, dce := grpc.DialContext(ctx, s.server.Addr(), grpcOpts...); nil != dce {
-		err = dce
-	} else if ge := s.registerGateway(ctx, gw, connection, register.Handlers()); nil != ge {
+	gateway := runtime.NewServeMux(gatewayOpts...)
+	if connection, nce := grpc.NewClient(s.server.Addr(), grpcOpts...); nil != nce {
+		err = nce
+	} else if ge := s.registerGateway(ctx, gateway, connection, register.Handlers()); nil != ge {
 		err = ge
 	} else if "" == s.gateway.Path {
-		s.mux.Handle(constant.Slash, gw)
+		s.mux.Handle(constant.Slash, gateway)
 	} else {
 		path := s.gateway.Path
-		s.mux.Handle(gox.StringBuilder(path, constant.Slash).String(), http.StripPrefix(path, gw))
+		s.mux.Handle(gox.StringBuilder(path, constant.Slash).String(), http.StripPrefix(path, gateway))
 	}
 	if nil == err {
 		err = s.serveGateway(listener)
@@ -200,6 +197,11 @@ func (s *Server) metadata(_ context.Context, req *http.Request) metadata.MD {
 	md[constant.GrpcGatewayUri] = req.URL.RequestURI()
 	md[constant.GrpcGatewayMethod] = req.Method
 	md[constant.GrpcGatewayProto] = req.Proto
+	for key, value := range req.Header {
+		if _, test := s.gateway.Header.TestReserves(key); test {
+			md[key] = value[0]
+		}
+	}
 
 	return metadata.New(md)
 }
