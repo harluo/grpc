@@ -75,7 +75,7 @@ func (s *Server) serveGateway(listener net.Listener) (err error) {
 		field.New("name", s.gateway.Name),
 		field.New("addr", s.gateway.Addr()),
 	}
-	s.logger.Info("启动服务成功", fields...)
+	s.logger.Info("启动服务成功", fields[0], fields[1:]...)
 	err = s.http.Serve(listener)
 
 	return

@@ -26,7 +26,8 @@ func (s *Server) handler(grpc *grpc.Server, gateway http.Handler) (handler http.
 
 func (s *Server) combine(grpc *grpc.Server, gateway http.Handler) http.Handler {
 	return h2c.NewHandler(http.HandlerFunc(func(rsp http.ResponseWriter, req *http.Request) {
-		s.logger.Debug("收到请求", s.fields(req)...)
+		fields := s.fields(req)
+		s.logger.Debug("收到请求", fields[0], fields[1:]...)
 		if req.ProtoMajor >= 2 && constant.GrpcHeaderValue == req.Header.Get(constant.HeaderContentType) {
 			grpc.ServeHTTP(rsp, req)
 		} else {
