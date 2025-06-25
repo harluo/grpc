@@ -5,14 +5,14 @@ go 1.24
 require (
 	github.com/goexl/gox v1.9.2
 	golang.org/x/net v0.40.0
-	google.golang.org/grpc v1.72.1
+	google.golang.org/grpc v1.73.0
 	google.golang.org/protobuf v1.36.6
 )
 
 require (
 	github.com/goexl/exception v0.0.4
 	github.com/goexl/log v0.1.0
-	github.com/grpc-ecosystem/grpc-gateway/v2 v2.26.3
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.1
 	github.com/harluo/config v0.0.7
 	github.com/harluo/di v0.0.5
 	github.com/stretchr/testify v1.10.0
@@ -56,8 +56,8 @@ require (
 	go.uber.org/dig v1.19.0 // indirect
 	golang.org/x/crypto v0.38.0 // indirect
 	golang.org/x/sys v0.33.0 // indirect
-	golang.org/x/text v0.25.0 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20250512202823-5a2f75b736a9 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20250512202823-5a2f75b736a9 // indirect
+	golang.org/x/text v0.26.0 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20250603155806-513f23925822 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250603155806-513f23925822 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
