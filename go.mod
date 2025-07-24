@@ -5,7 +5,7 @@ go 1.24
 require (
 	github.com/goexl/gox v1.9.2
 	golang.org/x/net v0.42.0
-	google.golang.org/grpc v1.73.0
+	google.golang.org/grpc v1.74.2
 	google.golang.org/protobuf v1.36.6
 )
 
