@@ -97,7 +97,7 @@ func (s *Server) Stop(ctx context.Context) (err error) {
 }
 
 func (s *Server) diffPort() bool {
-	return s.gateway.Port != s.server.Port
+	return s.http.Port() != s.server.Port
 }
 
 func (s *Server) listeners() (rpc net.Listener, gateway net.Listener, err error) {
