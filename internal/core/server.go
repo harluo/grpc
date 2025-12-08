@@ -9,11 +9,13 @@ import (
 	"github.com/goexl/exception"
 	"github.com/goexl/gox"
 	"github.com/goexl/log"
+	"github.com/harluo/di"
 	"github.com/harluo/grpc/internal/config"
 	"github.com/harluo/grpc/internal/internal/checker"
 	"github.com/harluo/grpc/internal/internal/constant"
 	"github.com/harluo/grpc/internal/internal/core"
 	"github.com/harluo/grpc/internal/kernel"
+	"github.com/harluo/httpd"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/reflection"
@@ -96,16 +98,11 @@ func (s *Server) Stop(ctx context.Context) (err error) {
 	return
 }
 
-func (s *Server) diffPort() bool {
-	return s.http.Port() != s.server.Port
-}
-
 func (s *Server) listeners() (rpc net.Listener, gateway net.Listener, err error) {
 	if listener, re := net.Listen(constant.Tcp, s.server.Addr()); nil != re { // gRPC端口必须监听
 		err = re
-	} else if s.gatewayEnabled() && s.diffPort() { // 如果网关开启且端口不一样
-		rpc = listener
-		gateway, err = net.Listen(constant.Tcp, s.gateway.Addr())
+	} else if s.gatewayEnabled() { // 如果网关开启且端口不一样
+		rpc, gateway, err = s.enableGateway(listener)
 	} else { // 其它情况，监听端口都是一样的
 		rpc = listener
 		gateway = listener
@@ -114,6 +111,20 @@ func (s *Server) listeners() (rpc net.Listener, gateway net.Listener, err error)
 	return
 }
 
+func (s *Server) enableGateway(listener net.Listener) (rpc net.Listener, gateway net.Listener, err error) {
+	err = di.New().Instance().Get(func(server *httpd.Server) {
+		if s.server.Port != server.Port() {
+			rpc = listener
+			gateway, err = net.Listen(constant.Tcp, server.Http().Addr)
+		} else {
+			rpc = listener
+			gateway = listener
+		}
+	}).Build().Inject()
+
+	return
+}
+
 func (s *Server) gatewayEnabled() bool {
-	return nil != s.gateway && s.gateway.Enable()
+	return nil != s.gateway && s.gateway.Enabled
 }

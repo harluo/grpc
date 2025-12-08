@@ -9,7 +9,7 @@ import (
 
 type Gateway struct {
 	// 是否开启
-	Enabled *bool `default:"true" json:"enabled,omitempty"`
+	Enabled bool `json:"enabled,omitempty"`
 	// 名字
 	Name string `default:"网关" json:"name,omitempty"`
 	// 路径
@@ -45,10 +45,6 @@ func (g *Gateway) Options() (options []runtime.ServeMuxOption) {
 	options = append(options, runtime.WithMarshalerOption(runtime.MIMEWildcard, json))
 
 	return
-}
-
-func (g *Gateway) Enable() bool {
-	return nil != g.Enabled && *g.Enabled
 }
 
 func (g *Gateway) CorsEnabled() bool {
