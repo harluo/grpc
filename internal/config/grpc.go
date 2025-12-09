@@ -8,8 +8,6 @@ import (
 type Grpc struct {
 	// 服务器端配置
 	Server *core.Server `json:"server,omitempty"`
-	// 网关配置
-	Gateway *core.Gateway `json:"gateway,omitempty"`
 	// 客户端配置
 	Clients []core.Client `json:"clients,omitempty"`
 	// gRPC配置

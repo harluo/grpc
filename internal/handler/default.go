@@ -1,4 +1,4 @@
-package stub
+package handler
 
 import (
 	"google.golang.org/grpc"
@@ -16,6 +16,6 @@ func NewDefault[T any](fun func(grpc.ServiceRegistrar, T), server T) *Default[T]
 	}
 }
 
-func (d *Default[T]) Register(server *grpc.Server) {
+func (d *Default[T]) Handle(server *grpc.Server) {
 	d.fun(server, d.server)
 }

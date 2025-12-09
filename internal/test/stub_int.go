@@ -4,4 +4,4 @@ import (
 	"google.golang.org/grpc"
 )
 
-func StubInt(_ grpc.ServiceRegistrar, _ int) {}
+func HandlerInt(_ grpc.ServiceRegistrar, _ int) {}

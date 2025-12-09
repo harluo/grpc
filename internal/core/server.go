@@ -4,18 +4,15 @@ import (
 	"context"
 	"net"
 	"net/http"
-	"sync"
 
 	"github.com/goexl/exception"
 	"github.com/goexl/gox"
+	"github.com/goexl/gox/field"
 	"github.com/goexl/log"
-	"github.com/harluo/di"
 	"github.com/harluo/grpc/internal/config"
-	"github.com/harluo/grpc/internal/internal/checker"
 	"github.com/harluo/grpc/internal/internal/constant"
 	"github.com/harluo/grpc/internal/internal/core"
 	"github.com/harluo/grpc/internal/kernel"
-	"github.com/harluo/httpd"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/reflection"
@@ -23,16 +20,9 @@ import (
 
 // Server gRPC服务器封装
 type Server struct {
-	rpc  *grpc.Server
-	http *http.Server
-	mux  *http.ServeMux
-
-	server  *core.Server
-	gateway *core.Gateway
-
-	wait    *sync.WaitGroup
-	started bool
-	logger  log.Logger
+	rpc    *grpc.Server
+	config *core.Server
+	logger log.Logger
 
 	_ gox.Pointerized
 }
@@ -60,71 +50,33 @@ func newServer(config *config.Grpc, logger log.Logger) (server *Server, mux *htt
 		Timeout:           config.Options.Keepalive.Timeout,
 	}))
 
-	mux = http.NewServeMux()
 	server.rpc = grpc.NewServer(opts...)
-	server.mux = mux
-
-	server.server = config.Server
-	server.gateway = config.Gateway
-	server.wait = new(sync.WaitGroup)
+	server.config = config.Server
 	server.logger = logger
 
 	return
 }
 
-func (s *Server) Serve(ctx context.Context, register kernel.Register) (err error) {
-	if *s.server.Reflection { // 反射，在gRPC接口调试时，可以反射出方法和参数
+func (s *Server) Start(_ context.Context, router kernel.Router) (err error) {
+	if *s.config.Reflection { // 反射，在gRPC接口调试时，可以反射出方法和参数
 		reflection.Register(s.rpc)
 	}
-
-	if rpc, gateway, le := s.listeners(); nil != le {
+	for _, handler := range router.Handlers() {
+		handler.Handle(s.rpc)
+	}
+	if rpc, le := net.Listen(constant.Tcp, s.config.Addr()); nil != le {
 		err = le
-	} else if gre := s.setupGrpc(register, rpc); nil != gre {
-		err = gre
-	} else if converted, ok := register.(checker.Gateway); ok {
-		err = s.setupGateway(ctx, converted, gateway)
+		s.logger.Error("监控端口出错", field.Error(err), field.New("addr", s.config.Addr()))
+	} else if se := s.rpc.Serve(rpc); nil != se {
+		err = se
+		s.logger.Error("启动服务出错", field.Error(err))
 	}
-	s.wait.Wait()
 
 	return
 }
 
-func (s *Server) Stop(ctx context.Context) (err error) {
+func (s *Server) Stop(_ context.Context) (err error) {
 	s.rpc.GracefulStop()
-	if nil != s.http {
-		err = s.http.Shutdown(ctx)
-	}
 
 	return
-}
-
-func (s *Server) listeners() (rpc net.Listener, gateway net.Listener, err error) {
-	if listener, re := net.Listen(constant.Tcp, s.server.Addr()); nil != re { // gRPC端口必须监听
-		err = re
-	} else if s.gatewayEnabled() { // 如果网关开启且端口不一样
-		rpc, gateway, err = s.enableGateway(listener)
-	} else { // 其它情况，监听端口都是一样的
-		rpc = listener
-		gateway = listener
-	}
-
-	return
-}
-
-func (s *Server) enableGateway(listener net.Listener) (rpc net.Listener, gateway net.Listener, err error) {
-	err = di.New().Instance().Get(func(server *httpd.Server) {
-		if s.server.Port != server.Port() {
-			rpc = listener
-			gateway, err = net.Listen(constant.Tcp, server.Http().Addr)
-		} else {
-			rpc = listener
-			gateway = listener
-		}
-	}).Build().Inject()
-
-	return
-}
-
-func (s *Server) gatewayEnabled() bool {
-	return nil != s.gateway && s.gateway.Enabled
 }
