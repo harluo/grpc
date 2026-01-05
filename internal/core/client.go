@@ -40,7 +40,7 @@ func newClient(config *config.Grpc) (client *Client, err error) {
 	connections := make(map[string]*grpc.ClientConn)
 	for _, conf := range config.Clients {
 		var connection *grpc.ClientConn
-		if connection, err = grpc.Dial(conf.Addr, opts...); nil != err {
+		if connection, err = grpc.Dial(conf.Addr(), opts...); nil != err {
 			return
 		}
 
