@@ -16,9 +16,9 @@ type Client struct {
 	_ gox.Pointerized
 }
 
-func newClient(config *config.Grpc) (client *Client, err error) {
+func newClient(gc *config.Grpc) (client *Client, err error) {
 	client = new(Client) // 避免空指针错误
-	if 0 == len(config.Clients) {
+	if 0 == len(gc.Clients) {
 		err = exception.New().Message("缺乏客户端配置").Build()
 	}
 	if nil != err {
@@ -27,28 +27,28 @@ func newClient(config *config.Grpc) (client *Client, err error) {
 
 	opts := make([]grpc.DialOption, 0, 8)
 	opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	opts = append(opts, grpc.WithInitialWindowSize(int32(config.Options.Size.Window.Initial)))
-	opts = append(opts, grpc.WithInitialConnWindowSize(int32(config.Options.Size.Window.Connection)))
-	opts = append(opts, grpc.WithDefaultCallOptions(grpc.MaxCallSendMsgSize(int(config.Options.Size.Msg.Send))))
-	opts = append(opts, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(int(config.Options.Size.Msg.Receive))))
+	opts = append(opts, grpc.WithInitialWindowSize(int32(gc.Options.Size.Window.Initial)))
+	opts = append(opts, grpc.WithInitialConnWindowSize(int32(gc.Options.Size.Window.Connection)))
+	opts = append(opts, grpc.WithDefaultCallOptions(grpc.MaxCallSendMsgSize(int(gc.Options.Size.Msg.Send))))
+	opts = append(opts, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(int(gc.Options.Size.Msg.Receive))))
 	opts = append(opts, grpc.WithKeepaliveParams(keepalive.ClientParameters{
-		Time:                config.Options.Keepalive.Time,
-		Timeout:             config.Options.Keepalive.Timeout,
-		PermitWithoutStream: config.Options.Keepalive.Policy.Permit,
+		Time:                gc.Options.Keepalive.Time,
+		Timeout:             gc.Options.Keepalive.Timeout,
+		PermitWithoutStream: gc.Options.Keepalive.Policy.Permit,
 	}))
 
 	connections := make(map[string]*grpc.ClientConn)
-	for _, conf := range config.Clients {
+	for name, conf := range gc.Clients {
 		var connection *grpc.ClientConn
 		if connection, err = grpc.Dial(conf.Addr(), opts...); nil != err {
 			return
 		}
 
-		if "" != conf.Name {
-			connections[conf.Name] = connection
-		}
-		for _, name := range conf.Names {
+		if "" != name {
 			connections[name] = connection
+		}
+		for _, _name := range conf.Names {
+			connections[_name] = connection
 		}
 	}
 	client.connections = connections
