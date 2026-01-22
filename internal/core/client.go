@@ -18,7 +18,7 @@ type Client struct {
 
 func newClient(gc *config.Grpc) (client *Client, err error) {
 	client = new(Client) // 避免空指针错误
-	if 0 == len(gc.Clients) {
+	if len(gc.Clients) == 0 {
 		err = exception.New().Message("缺乏客户端配置").Build()
 	}
 	if nil != err {

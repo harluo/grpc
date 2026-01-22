@@ -12,7 +12,7 @@ type Client struct {
 	// 地址
 	Hostname string `json:"hostname,omitempty" validate:"required,ip|hostname"`
 	// 端口
-	Port uint32 `default:"90" json:"port,omitempty" validate:"max=65535"`
+	Port uint32 `default:"90" json:"port,omitempty" validate:"required, max=65535"`
 }
 
 func (c *Client) Addr() (addr string) {

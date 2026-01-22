@@ -14,9 +14,9 @@ type Grpc struct {
 	Options core.Options `json:"options,omitempty"`
 }
 
-func newConfig(config config.Getter) (grpc *Grpc, err error) {
+func newConfig(getter config.Getter) (grpc *Grpc, err error) {
 	grpc = new(Grpc)
-	err = config.Get(&struct {
+	err = getter.Get(&struct {
 		Grpc *Grpc `json:"grpc,omitempty" validate:"required"`
 	}{
 		Grpc: grpc,
