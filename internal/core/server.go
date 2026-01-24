@@ -80,3 +80,7 @@ func (s *Server) Stop(_ context.Context) (err error) {
 
 	return
 }
+
+func (s *Server) Addr() string {
+	return s.config.Addr()
+}
