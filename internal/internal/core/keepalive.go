@@ -5,12 +5,8 @@ import (
 )
 
 type Keepalive struct {
-	// 保持时长
-	Time time.Duration `default:"10s" json:"time,omitempty"`
-	// 超时
-	Timeout time.Duration `default:"3s" json:"timeout,omitempty"`
-	// 空闲时长
-	Idle time.Duration `default:"3s" json:"idle,omitempty"`
-	// 策略
-	Policy KeepalivePolicy `json:"policy,omitempty"`
+	Time    time.Duration   `default:"5m" json:"time,omitempty"`     // 保持时长
+	Timeout time.Duration   `default:"20s" json:"timeout,omitempty"` // 超时
+	Idle    time.Duration   `default:"3s" json:"idle,omitempty"`     // 空闲时长
+	Policy  KeepalivePolicy `json:"policy,omitempty"`                // 策略
 }
